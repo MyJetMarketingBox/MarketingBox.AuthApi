@@ -15,7 +15,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.101
-        source-url: https://nuget.pkg.github.com/myjetwallet/index.json
+        source-url: https://nuget.pkg.github.com/myjetmarketingbox/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}  
 
@@ -35,7 +35,7 @@ jobs:
       uses: MyJetWallet/nuget-publish-to-github-packages-action@v2.1
       with:
         nupkg-path:  './src/MarketingBox.AuthApi.Client/bin/Release/*.nupkg'
-        repo-owner:  'myjetwallet'
+        repo-owner:  'myjetmarketingbox'
         gh-user:  ${{ github.actor }}
         token:  ${{ secrets.GITHUB_TOKEN }}  
 
