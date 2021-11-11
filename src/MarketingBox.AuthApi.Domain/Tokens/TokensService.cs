@@ -74,6 +74,7 @@ namespace MarketingBox.AuthApi.Domain.Tokens
             passHash = user.PasswordHash;
             userSalt = user.Salt;
             userName = user.Username;
+            var userRole = user.Role.MapEnum<Role>();
 
             if (!_cryptoService.VerifyHash(userSalt, password, passHash))
             {
@@ -81,15 +82,20 @@ namespace MarketingBox.AuthApi.Domain.Tokens
             }
 
             var expAt = DateTime.UtcNow + _ttl;
-            return (new TokenInfo() { Token = Create(tenantId, userName, expAt), ExpiresAt = expAt }, null);
+            return (new TokenInfo() { 
+                Token = Create(tenantId, userName, expAt, userRole, user.ExternalUserId), 
+                ExpiresAt = expAt, 
+                Role = userRole}, null);
         }
 
-        private string Create(string tenantId, string username, DateTime expirationDate)
+        private string Create(string tenantId, string username, DateTime expirationDate, Role role, string userId)
         {
             var properties = new Dictionary<string, string>
             {
                 {UserNameClaim, username},
-                {TenantIdClaim, tenantId}
+                {TenantIdClaim, tenantId},
+                {ClaimTypes.Role, role.ToString()},
+                {UserIdClaim, userId},
             };
 
             var audiences = new List<string>()

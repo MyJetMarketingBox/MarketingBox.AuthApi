@@ -1,30 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public class TenantLocator
+namespace MarketingBox.AuthApi.Domain.Tokens
 {
-    private readonly Dictionary<string, string> _hostTenantIdDict;
-
-    public TenantLocator(Dictionary<string, string> hostTenantIdDict)
+    public class TenantLocator
     {
-        _hostTenantIdDict = hostTenantIdDict;
-    }
+        private readonly Dictionary<string, string> _hostTenantIdDict;
 
-    public string GetTenantIdByHost(string host)
-    {
-        string tenantId = null;
-
-        if (_hostTenantIdDict.TryGetValue(host, out tenantId))
+        public TenantLocator(Dictionary<string, string> hostTenantIdDict)
         {
-            return tenantId;
+            _hostTenantIdDict = hostTenantIdDict;
         }
 
-        if (host == "localhost")
+        public string GetTenantIdByHost(string host)
         {
-            return "default-tenant-id";
+            string tenantId = null;
+
+            if (_hostTenantIdDict.TryGetValue(host, out tenantId))
+            {
+                return tenantId;
+            }
+
+            if (host == "localhost")
+            {
+                return "default-tenant-id";
+            }
+
+            throw new InvalidOperationException($"There is no registered tenant for {host}");
+
         }
-
-        throw new InvalidOperationException($"There is no registered tenant for {host}");
-
     }
 }
