@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>179abb27-f37b-4a02-b529-17c2c43e46b5</UserSecretsId>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
@@ -11,13 +11,13 @@
     <PackageReference Include="Destructurama.Attributed" Version="3.0.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="MyJetWallet.Sdk.GrpcMetrics" Version="2.0.3" />
+    <PackageReference Include="MyJetWallet.Sdk.GrpcMetrics" Version="2.0.4" />
     <PackageReference Include="MyJetWallet.Sdk.GrpcSchema" Version="1.0.6" />
-    <PackageReference Include="MyJetWallet.Sdk.NoSql" Version="1.4.0" />
-    <PackageReference Include="MyJetWallet.Sdk.Service" Version="1.6.11" />
+    <PackageReference Include="MyJetWallet.Sdk.NoSql" Version="2.0.1" />
+    <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.1" />
     <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.0.152" />
