@@ -38,6 +38,17 @@ namespace MarketingBox.AuthApi.Controllers
         {
             var tenantId = _tenantLocator.GetTenantIdByHost(Request.Host.Host);
 
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                ModelState.AddModelError(nameof(request.Email), "Email cannot be empty.");
+                return BadRequest(ModelState);
+            }
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                ModelState.AddModelError(nameof(request.Password), "Password cannot be empty.");
+                return BadRequest(ModelState);
+            }
+            
             var (token, error) = await _tokensService.LoginAsync(request.Email, tenantId, request.Password);
 
             if (error != null)
