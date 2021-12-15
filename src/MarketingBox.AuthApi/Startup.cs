@@ -33,6 +33,7 @@ namespace MarketingBox.AuthApi
 {
     public class Startup
     {
+        private readonly string _corsPolicy = "Develop";
         public Startup()
         {
             ModelStateDictionaryResponseCodes = new HashSet<int>();
@@ -43,7 +44,18 @@ namespace MarketingBox.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
-
+            services.AddCors(options =>
+            {
+                options.AddPolicy(_corsPolicy,
+                 builder =>
+                 {
+                     builder
+                      .WithOrigins("http://localhost:3001")
+                      .AllowCredentials()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+                 });
+            });
             services.AddAuthorization();
             services.AddControllers().AddNewtonsoftJson(ConfigureMvcNewtonsoftJsonOptions);
             services.AddSwaggerGen(ConfigureSwaggerGenOptions);
@@ -90,7 +102,7 @@ namespace MarketingBox.AuthApi
 
             app.UseRouting();
 
-            app.UseCors();
+            app.UseCors(_corsPolicy);
 
             //app.UseAuthentication();
             //app.UseAuthorization();
