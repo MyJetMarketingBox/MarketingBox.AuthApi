@@ -44,18 +44,19 @@ namespace MarketingBox.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
-            services.AddCors(options =>
-            {
-                options.AddPolicy(_corsPolicy,
-                 builder =>
-                 {
-                     builder
-                      //.WithOrigins("http://localhost:3001", "http://localhost:3002")
-                      .AllowCredentials()
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
-                 });
-            });
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy(_corsPolicy,
+            //     builder =>
+            //     {
+            //        builder.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials());
+            //     });
+            //});
+
+            //app.UseCors(builder =>
+            //    builder.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials());
+
+
             services.AddAuthorization();
             services.AddControllers().AddNewtonsoftJson(ConfigureMvcNewtonsoftJsonOptions);
             services.AddSwaggerGen(ConfigureSwaggerGenOptions);
@@ -102,12 +103,13 @@ namespace MarketingBox.AuthApi
 
             app.UseRouting();
 
-            app.UseCors(_corsPolicy);
+            app.UseCors(builder =>
+                builder.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials());
 
-            //app.UseAuthentication();
-            //app.UseAuthorization();
+        //app.UseAuthentication();
+        //app.UseAuthorization();
 
-            app.UseMetricServer();
+        app.UseMetricServer();
 
             app.BindServicesTree(Assembly.GetExecutingAssembly());
 
