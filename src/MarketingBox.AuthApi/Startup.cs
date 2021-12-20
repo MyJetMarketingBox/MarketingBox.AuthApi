@@ -50,8 +50,8 @@ namespace MarketingBox.AuthApi
                  builder =>
                  {
                      builder
-                     //.WithOrigins("http://localhost:3001", "http://localhost:3002")
-                     .AllowAnyOrigin()
+                     .WithOrigins("http://localhost:3001", "http://localhost:3002")
+                     //.AllowAnyOrigin()
                      .WithMethods("GET", "POST")
                      .AllowAnyHeader()
                      .AllowAnyMethod()
