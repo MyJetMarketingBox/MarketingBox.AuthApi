@@ -33,7 +33,7 @@ namespace MarketingBox.AuthApi
 {
     public class Startup
     {
-        private readonly string _corsPolicy = "Develop";
+        private readonly string _allowAllOrigins = "Develop";
         public Startup()
         {
             ModelStateDictionaryResponseCodes = new HashSet<int>();
@@ -44,18 +44,21 @@ namespace MarketingBox.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy(_corsPolicy,
-            //     builder =>
-            //     {
-            //        builder.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials());
-            //     });
-            //});
-
-            //app.UseCors(builder =>
-            //    builder.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials());
-
+            services.AddCors(options =>
+            {
+                options.AddPolicy(_allowAllOrigins,
+                 builder =>
+                 {
+                     builder
+                     //.WithOrigins("http://localhost:3001", "http://localhost:3002")
+                     .AllowAnyOrigin()
+                     .WithMethods("GET", "POST")
+                     .AllowAnyHeader()
+                     .AllowAnyMethod()
+                     .SetIsOriginAllowed((host) => true)
+                     .AllowCredentials();
+                 });
+            });
 
             services.AddAuthorization();
             services.AddControllers().AddNewtonsoftJson(ConfigureMvcNewtonsoftJsonOptions);
@@ -103,13 +106,13 @@ namespace MarketingBox.AuthApi
 
             app.UseRouting();
 
-            app.UseCors(builder =>
-                builder.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed((host) => true).AllowCredentials());
+            app.UseCors(_allowAllOrigins);
+            
 
-        //app.UseAuthentication();
-        //app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
-        app.UseMetricServer();
+            app.UseMetricServer();
 
             app.BindServicesTree(Assembly.GetExecutingAssembly());
 
