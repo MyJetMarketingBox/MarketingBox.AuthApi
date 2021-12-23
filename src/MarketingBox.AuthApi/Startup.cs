@@ -44,21 +44,21 @@ namespace MarketingBox.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
-            services.AddCors(options =>
-            {
-                options.AddPolicy(_allowAllOrigins,
-                 builder =>
-                 {
-                     builder
-                     .WithOrigins("http://localhost:3001", "http://localhost:3002")
-                     //.AllowAnyOrigin()
-                     .WithMethods("GET", "POST")
-                     .AllowAnyHeader()
-                     .AllowAnyMethod()
-                     .SetIsOriginAllowed((host) => true)
-                     .AllowCredentials();
-                 });
-            });
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy(_allowAllOrigins,
+            //     builder =>
+            //     {
+            //         builder
+            //         .WithOrigins("http://localhost:3001", "*", "http://localhost:3002")
+            //         //.AllowAnyOrigin()
+            //         //.WithMethods("GET", "POST")
+            //         .AllowAnyHeader()
+            //         .AllowAnyMethod()
+            //         .SetIsOriginAllowed((host) => true)
+            //         .AllowCredentials();
+            //     });
+            //});
 
             services.AddAuthorization();
             services.AddControllers().AddNewtonsoftJson(ConfigureMvcNewtonsoftJsonOptions);
@@ -71,7 +71,7 @@ namespace MarketingBox.AuthApi
                 .AddAuthentication(ConfigureAuthenticationOptions)
                 .AddJwtBearer(ConfigureJwtBearerOptions);
 
-            services.AddMyTelemetry("SP-", Program.Settings.ZipkinUrl);
+            services.AddMyTelemetry("MB-", Program.Settings.ZipkinUrl);
         }
 
         protected virtual void ConfigureJwtBearerOptions(JwtBearerOptions options)
@@ -106,9 +106,8 @@ namespace MarketingBox.AuthApi
 
             app.UseRouting();
 
-            app.UseCors(_allowAllOrigins);
+            //app.UseCors(_allowAllOrigins);
             
-
             //app.UseAuthentication();
             //app.UseAuthorization();
 
