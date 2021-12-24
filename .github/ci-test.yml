@@ -1,0 +1,103 @@
+name: CI build
+
+on:
+  push:
+    branches:
+      - test
+      - uat
+      - master
+#  pull_request:
+#    types: [closed]
+#    branches:
+#      - master
+#      - uat
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Extract branch name
+      uses: vazco/github-actions-branch-name@v1
+      id: branch
+
+    - id: string
+      uses: ASzc/change-string-case-action@v1
+      with:
+        string: ${{ github.event.repository.name }}
+
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.*
+
+    - name: Get current time
+      uses: MyJetTools/get-current-time@v2
+      id: current-time
+      with:
+        format: YYYY-MM-DD HH:mm:ss
+        utcOffset: "+00:00"
+        
+    - name: Build
+      run: dotnet build --configuration Release /p:AssemblyVersion=0.0.${{ github.run_number }}
+    - name: Test
+      run: dotnet test --no-build --configuration Release
+    - name: ls
+      run: ls
+
+    - name: Publish Service
+      run: dotnet publish --no-build ./src/${{ github.event.repository.name }}/${{ github.event.repository.name }}.csproj --configuration Release --output ./publish-api
+
+    - name: Check Service dir
+      run: ls ./publish-api
+
+    - name: Publish image ST
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.MBOX_REGISTRY_USER }}
+        password: ${{ secrets.MBOX_REGISTRY_PASS }}
+        path: ./publish-api
+        registry: ${{ secrets.MBOX_REGISTRY_URL }}
+        repository: marketingbox/${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}
+        tags: latest
+        add_git_labels: true
+        build_args: app_version=${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}:latest,app_compilation_date=${{ steps.current-time.outputs.formattedTime }}
+
+  restart:
+    runs-on: ubuntu-latest    
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+    - name: Extract branch name
+      uses: vazco/github-actions-branch-name@v1
+      id: branch
+
+    - id: string
+      uses: ASzc/change-string-case-action@v1
+      with:
+        string: ${{ github.event.repository.name }}
+
+    - name: Restart service test
+      if: ${{ steps.branch.outputs.branch_name == 'test' }}
+      uses: MyJetMarketingBox/kube-restart-pods@main
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA__ST_TEST }}
+        NAMESPACE: marketing-box
+        IMAGE: ${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}
+
+    - name: Restart service uat
+      if: ${{ steps.branch.outputs.branch_name == 'uat' }}
+      uses: MyJetMarketingBox/kube-restart-pods@main
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_UAT }}
+        NAMESPACE: marketing-box
+        IMAGE: ${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}
+
+    - name: Restart service prod
+      if: ${{ steps.branch.outputs.branch_name == 'master' }}
+      uses: MyJetMarketingBox/kube-restart-pods@main
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_PROD }}
+        NAMESPACE: marketing-box
+        IMAGE: ${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}
