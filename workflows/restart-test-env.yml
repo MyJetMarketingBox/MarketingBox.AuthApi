@@ -1,0 +1,43 @@
+name: Restart test env
+
+on:
+  workflow_dispatch:
+
+jobs:
+  restart:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+    - name: Extract branch name
+      uses: vazco/github-actions-branch-name@v1
+      id: branch
+
+    - id: string
+      uses: ASzc/change-string-case-action@v1
+      with:
+        string: ${{ github.event.repository.name }}
+
+    - name: Restart service test
+      if: ${{ steps.branch.outputs.branch_name == 'test' }}
+      uses: MyJetMarketingBox/kube-restart-pods@main
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA__ST_TEST }}
+        NAMESPACE: marketing-box
+        IMAGE: ${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}
+
+    - name: Restart service uat
+      if: ${{ steps.branch.outputs.branch_name == 'uat' }}
+      uses: MyJetMarketingBox/kube-restart-pods@main
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_UAT }}
+        NAMESPACE: marketing-box
+        IMAGE: ${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}
+
+    - name: Restart service prod
+      if: ${{ steps.branch.outputs.branch_name == 'master' }}
+      uses: MyJetMarketingBox/kube-restart-pods@main
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA_PROD }}
+        NAMESPACE: marketing-box
+        IMAGE: ${{ steps.string.outputs.lowercase }}-${{ steps.branch.outputs.branch_name }}
