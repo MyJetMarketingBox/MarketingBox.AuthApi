@@ -26,16 +26,15 @@ jobs:
       run: dotnet test --no-build --configuration Release
 
     - name: Create the package
-      run: dotnet pack --configuration Release src/MarketingBox.Affiliate.Service.Client /p:Version=${GITHUB_REF#refs/tags/client-}
+      run: dotnet pack --configuration Release src/*${{ github.event.repository.name }}.Client /p:Version=${GITHUB_REF#refs/tags/client-}
 
     - name: Publish the package to GPR
-      run: dotnet nuget push src/MarketingBox.Affiliate.Service.Client/bin/Release/*.nupkg -s "https://api.nuget.org/v3/index.json" -k ${{ secrets.NUGET_TOCKEN }}
+      run: dotnet nuget push src/*${{ github.event.repository.name }}.Client/bin/Release/*.nupkg -s "https://api.nuget.org/v3/index.json" -k ${{ secrets.NUGET_TOCKEN }}
 
     - name: Publish the package to GitHub
       uses: MyJetWallet/nuget-publish-to-github-packages-action@v2.1
       with:
-        nupkg-path:  './src/MarketingBox.Affiliate.Service.Client/bin/Release/*.nupkg'
+        nupkg-path:  './src/*${{ github.event.repository.name }}.Client/bin/Release/*.nupkg'
         repo-owner:  'myjetmarketingbox'
         gh-user:  ${{ github.actor }}
-        token:  ${{ secrets.GITHUB_TOKEN }}  
-
+        token:  ${{ secrets.GITHUB_TOKEN }} 
