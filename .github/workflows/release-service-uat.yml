@@ -3,7 +3,7 @@ name: Release Service
 on:
   push:
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+      - "uat-[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   build:
@@ -33,12 +33,12 @@ jobs:
         format: YYYY-MM-DD HH:mm:ss
         utcOffset: "+00:00"
 
-    - name: Name of branch prod
+    - name: Name of branch uat
       id: branches
       uses: ashley-taylor/regex-property-action@1.2
       with:
         value: ${{ github.ref }}
-        regex: ".*/"
+        regex: ".*/uat-"
         flags: "" # Optional, defaults to "g"
         replacement: ""
 
@@ -61,12 +61,12 @@ jobs:
         password: ${{ secrets.MBOX_REGISTRY_PASS }}
         path: ./publish-api
         registry: ${{ secrets.MBOX_REGISTRY_URL }}
-        repository: marketingbox/${{ steps.string.outputs.lowercase }}-master
+        repository: marketingbox/${{ steps.string.outputs.lowercase }}-uat
         tags: ${{ steps.branches.outputs.value }}
-        build_args: app_version=${{ steps.string.outputs.lowercase }}-master:${{ steps.branches.outputs.value }},app_compilation_date=${{ steps.current-time.outputs.formattedTime }}
+        build_args: app_version=${{ steps.string.outputs.lowercase }}-uat:${{ steps.branches.outputs.value }},app_compilation_date=${{ steps.current-time.outputs.formattedTime }}
 
 
-  update_version_master:
+  update_version_uat:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -81,24 +81,24 @@ jobs:
       with:
         string: ${{ github.event.repository.name }}
 
-    - name: Name of branch prod
+    - name: Name of branch
       id: branches
       uses: ashley-taylor/regex-property-action@1.2
       with:
         value: ${{ github.ref }}
-        regex: ".*/"
+        regex: ".*/uat-"
         flags: "" # Optional, defaults to "g"
         replacement: ""
 
-    - name: get master kube yamls
+    - name: get uat kube yamls
       uses: actions/checkout@v2
       with:
         repository: MyJetMarketingBox/marketing-box-kubernates-infrastructure
-        ref: master
+        ref: uat
         token: ${{ secrets.UAT_GIT_TOKEN }}
     - run: ls
-    - run: sed -i s/${{ steps.string.outputs.lowercase }}-master:.*/${{ steps.string.outputs.lowercase }}-master:${{ steps.branches.outputs.value }}/g services/*/deployment*
-    - run: |        
+    - run: sed -i s/${{ steps.string.outputs.lowercase }}-uat:.*/${{ steps.string.outputs.lowercase }}-uat:${{ steps.branches.outputs.value }}/g services/*/deployment*
+    - run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
         git commit -a -m "Update version of service ${{ steps.string.outputs.lowercase }}"
