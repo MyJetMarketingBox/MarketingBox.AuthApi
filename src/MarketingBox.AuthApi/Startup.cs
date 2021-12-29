@@ -3,36 +3,25 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using Autofac;
-using MarketingBox.AuthApi.Grpc;
 using MarketingBox.AuthApi.Modules;
-using MarketingBox.AuthApi.Services;
-using MarketingBox.AuthApi.Swagger;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using MyJetWallet.Sdk.GrpcMetrics;
 using MyJetWallet.Sdk.GrpcSchema;
 using MyJetWallet.Sdk.Service;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 using Prometheus;
-using ProtoBuf.Grpc.Server;
-using SimpleTrading.BaseMetrics;
 using SimpleTrading.ServiceStatusReporterConnector;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace MarketingBox.AuthApi
 {
     public class Startup
     {
+        private readonly string _allowAllOrigins = "Develop";
         public Startup()
         {
             ModelStateDictionaryResponseCodes = new HashSet<int>();
@@ -43,11 +32,30 @@ namespace MarketingBox.AuthApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(_allowAllOrigins,
+                 builder =>
+                 {
+                     builder
+                     .WithOrigins("http://localhost:3001", "http://localhost:3002")
+                     //.AllowAnyOrigin()
+                     //.WithMethods("GET", "POST")
+                     .AllowAnyHeader()
+                     .AllowAnyMethod()
+                     .SetIsOriginAllowed((host) => true)
+                     .AllowCredentials();
+                 });
+            });
 
-            services.AddAuthorization();
-            services.AddControllers().AddNewtonsoftJson(ConfigureMvcNewtonsoftJsonOptions);
-            services.AddSwaggerGen(ConfigureSwaggerGenOptions);
-            services.AddSwaggerGenNewtonsoftSupport();
+
+            ///Access to XMLHttpRequest at 'https://mb-affiliate-api.mnftx.biz/api/affiliates' from origin 'http://localhost:3001' 
+            ///has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' 
+            ///header is present on the requested resource.
+
+            //services.AddAuthorization();
+            services.AddControllers();
+            services.SetupSwaggerDocumentation();
 
             services.AddHostedService<ApplicationLifetimeManager>();
 
@@ -55,7 +63,7 @@ namespace MarketingBox.AuthApi
                 .AddAuthentication(ConfigureAuthenticationOptions)
                 .AddJwtBearer(ConfigureJwtBearerOptions);
 
-            services.AddMyTelemetry("SP-", Program.Settings.ZipkinUrl);
+            services.AddMyTelemetry("MB-", Program.Settings.ZipkinUrl);
         }
 
         protected virtual void ConfigureJwtBearerOptions(JwtBearerOptions options)
@@ -88,9 +96,7 @@ namespace MarketingBox.AuthApi
 
             app.UseRouting();
 
-            app.UseRouting();
-
-            app.UseCors();
+            app.UseCors(_allowAllOrigins);
 
             //app.UseAuthentication();
             //app.UseAuthorization();
@@ -103,8 +109,6 @@ namespace MarketingBox.AuthApi
 
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapGrpcSchema<HelloService, IHelloService>();
-
                 endpoints.MapGrpcSchemaRegistry();
 
                 endpoints.MapControllers();
@@ -115,11 +119,16 @@ namespace MarketingBox.AuthApi
                 });
             });
 
-            app.UseSwagger(c => c.RouteTemplate = "api/{documentName}/swagger.json");
-            app.UseSwaggerUI(c =>
+            app.UseOpenApi(settings =>
             {
-                c.SwaggerEndpoint("../../api/v1/swagger.json", "API V1");
-                c.RoutePrefix = "swagger/ui";
+                settings.Path = $"/swagger/api/swagger.json";
+            });
+
+            app.UseSwaggerUi3(settings =>
+            {
+                settings.EnableTryItOut = true;
+                settings.Path = $"/swagger/api";
+                settings.DocumentPath = $"/swagger/api/swagger.json";
             });
         }
 
@@ -129,34 +138,5 @@ namespace MarketingBox.AuthApi
             builder.RegisterModule<ServiceModule>();
         }
         public ISet<int> ModelStateDictionaryResponseCodes { get; }
-        protected virtual void ConfigureSwaggerGenOptions(SwaggerGenOptions options)
-        {
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "MarketingBox.AuthApi", Version = "v1" });
-            options.EnableXmsEnumExtension();
-            options.MakeResponseValueTypesRequired();
-
-            foreach (var code in ModelStateDictionaryResponseCodes)
-            {
-                options.AddModelStateDictionaryResponse(code);
-            }
-
-            options.AddJwtBearerAuthorization();
-        }
-
-        protected virtual void ConfigureMvcNewtonsoftJsonOptions(MvcNewtonsoftJsonOptions options)
-        {
-            var namingStrategy = new CamelCaseNamingStrategy();
-
-            options.SerializerSettings.Converters.Add(new StringEnumConverter(namingStrategy));
-            options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
-            options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-            options.SerializerSettings.Culture = CultureInfo.InvariantCulture;
-            options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-            options.SerializerSettings.MissingMemberHandling = MissingMemberHandling.Error;
-            options.SerializerSettings.ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = namingStrategy
-            };
-        }
     }
 }
