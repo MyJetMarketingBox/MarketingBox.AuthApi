@@ -56,7 +56,7 @@ namespace MarketingBox.AuthApi.Controllers
                 switch (error.Type)
                 {
                     case LoginErrorType.NoUser:
-                        ModelState.AddModelError(nameof(request.Email), "There is no such user");
+                        ModelState.AddModelError(nameof(request.Email), $"There is no such user from {Request.Host.Host} in: {_tenantLocator.ToString()}");
                         break;
                     case LoginErrorType.WrongPassword:
                         ModelState.AddModelError(nameof(request.Password), "Password is wrong");
