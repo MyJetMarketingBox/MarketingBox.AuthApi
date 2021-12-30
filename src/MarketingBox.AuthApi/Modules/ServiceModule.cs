@@ -21,7 +21,9 @@ namespace MarketingBox.AuthApi.Modules
             {
                 foreach (var value in keyValue.Value.Split(new char[] {'|'}, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    dict[value] = keyValue.Key;
+                    var tenantName = keyValue.Key.ToLower();
+                    dict[value] = tenantName;
+                    Console.WriteLine($"Tenant name: '{tenantName}' host: '{value}' ");
                 }
             }
 

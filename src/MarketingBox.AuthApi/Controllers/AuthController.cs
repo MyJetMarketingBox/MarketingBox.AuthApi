@@ -37,6 +37,8 @@ namespace MarketingBox.AuthApi.Controllers
             [FromBody] AuthenticateRequest request)
         {
             var tenantId = _tenantLocator.GetTenantIdByHost(Request.Host.Host);
+            
+            Console.WriteLine($"Get tenant '{tenantId}' from host '{Request.Host.Host}' ");
 
             if (string.IsNullOrWhiteSpace(request.Email))
             {
@@ -56,7 +58,7 @@ namespace MarketingBox.AuthApi.Controllers
                 switch (error.Type)
                 {
                     case LoginErrorType.NoUser:
-                        ModelState.AddModelError(nameof(request.Email), $"There is no such user from {Request.Host.Host} in: {_tenantLocator.ToString()}");
+                        ModelState.AddModelError(nameof(request.Email), $"There is no such user");
                         break;
                     case LoginErrorType.WrongPassword:
                         ModelState.AddModelError(nameof(request.Password), "Password is wrong");
