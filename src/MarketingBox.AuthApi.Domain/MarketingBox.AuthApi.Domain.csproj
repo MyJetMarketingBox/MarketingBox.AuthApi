@@ -6,8 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="MarketingBox.Auth.Service.Client" Version="2.0.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.15.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.15.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
     <PackageReference Include="MyNoSqlServer.DataReader" Version="1.4.2" />
   </ItemGroup>
 
