@@ -72,15 +72,7 @@ namespace MarketingBox.AuthApi.Controllers
             return Ok(new AuthenticateResponse()
             {
                 Token = token.Token,
-                ExpiresAt = token.ExpiresAt,
-                Role = token.Role switch {
-                    Role.Affiliate => Models.Auth.Role.Affiliate,
-                    Role.MasterAffiliate => Models.Auth.Role.MasterAffiliate,
-                    Role.AffiliateManager => Models.Auth.Role.AffiliateManager,
-                    Role.Admin => Models.Auth.Role.Admin,
-                    Role.MasterAffiliateReferral => Models.Auth.Role.MasterAffiliateReferral,
-                    _ => throw new ArgumentOutOfRangeException(nameof(token.Role), token.Role, null)
-                }
+                ExpiresAt = token.ExpiresAt
             });
         }
     }
