@@ -32,7 +32,6 @@ namespace MarketingBox.AuthApi.Controllers
         /// </remarks>
         [HttpPost("login")]
         [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
-
         public async Task<ActionResult<AuthenticateResponse>> LoginAsync(
             [FromBody] AuthenticateRequest request)
         {

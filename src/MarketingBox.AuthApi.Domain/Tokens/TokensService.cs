@@ -4,7 +4,6 @@ using MarketingBox.Auth.Service.Grpc.Models.Users.Requests;
 using MarketingBox.Auth.Service.MyNoSql.Users;
 using MarketingBox.AuthApi.Domain.Models.Errors;
 using Microsoft.IdentityModel.Tokens;
-using MyNoSqlServer.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,6 +12,7 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using MyNoSqlServer.Abstractions;
 
 namespace MarketingBox.AuthApi.Domain.Tokens
 {

@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarketingBox.Auth.Service.Client" Version="2.0.0" />
+    <PackageReference Include="MarketingBox.Auth.Service.Client" Version="2.0.1" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.16.0" />
+    <PackageReference Include="MyJetWallet.Sdk.NoSql" Version="2.1.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
-    <PackageReference Include="MyNoSqlServer.DataReader" Version="1.7.0" />
   </ItemGroup>
 
   <ItemGroup>
