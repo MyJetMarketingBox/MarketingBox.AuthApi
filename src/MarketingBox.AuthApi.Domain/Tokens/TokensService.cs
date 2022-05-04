@@ -1,9 +1,9 @@
 ﻿using MarketingBox.Auth.Service.Crypto;
 using MarketingBox.Auth.Service.Grpc;
-using MarketingBox.Auth.Service.Grpc.Models.Users.Requests;
 using MarketingBox.Auth.Service.MyNoSql.Users;
 using MarketingBox.AuthApi.Domain.Models.Errors;
 using Microsoft.IdentityModel.Tokens;
+using MyNoSqlServer.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,7 +12,7 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using MyNoSqlServer.Abstractions;
+using MarketingBox.Auth.Service.Grpc.Models;
 
 namespace MarketingBox.AuthApi.Domain.Tokens
 {
@@ -48,7 +48,7 @@ namespace MarketingBox.AuthApi.Domain.Tokens
 
         public async Task<(TokenInfo Token, LoginError Error)> LoginAsync(string login, string tenantId, string password)
         {
-            bool isEmail = MailAddress.TryCreate(login, out var _);
+            var isEmail = MailAddress.TryCreate(login, out var _);
 
             string passHash = null;
             string userSalt = null;
@@ -61,20 +61,19 @@ namespace MarketingBox.AuthApi.Domain.Tokens
                 TenantId = tenantId
             });
 
-            if (usersResponse == null || usersResponse.User == null || usersResponse.User.Count == 0)
+            if (usersResponse?.Data == null || usersResponse.Data.Count == 0)
                 return (null, new LoginError() { Type = LoginErrorType.NoUser });
 
-            if (usersResponse.User.Count > 1)
+            if (usersResponse.Data.Count > 1)
             {
                 throw new InvalidOperationException("There can not be more than 1 user for tenant and login");
             }
 
-            var user = usersResponse.User.First();
+            var user = usersResponse.Data.First();
 
             passHash = user.PasswordHash;
             userSalt = user.Salt;
             userName = user.Username;
-            var userRole = user.Role.MapEnum<Role>();
 
             if (!_cryptoService.VerifyHash(userSalt, password, passHash))
             {
@@ -83,18 +82,16 @@ namespace MarketingBox.AuthApi.Domain.Tokens
 
             var expAt = DateTime.UtcNow + _ttl;
             return (new TokenInfo() { 
-                Token = Create(tenantId, userName, expAt, userRole, user.ExternalUserId), 
-                ExpiresAt = expAt, 
-                Role = userRole}, null);
+                Token = Create(tenantId, userName, expAt, user.ExternalUserId), 
+                ExpiresAt = expAt}, null);
         }
 
-        private string Create(string tenantId, string username, DateTime expirationDate, Role role, string userId)
+        private string Create(string tenantId, string username, DateTime expirationDate, string userId)
         {
             var properties = new Dictionary<string, string>
             {
                 {UserNameClaim, username},
                 {TenantIdClaim, tenantId},
-                {ClaimTypes.Role, role.ToString()},
                 {UserIdClaim, userId},
             };
 

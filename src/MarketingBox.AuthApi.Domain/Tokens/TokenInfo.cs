@@ -7,7 +7,5 @@ namespace MarketingBox.AuthApi.Domain.Tokens
         public string Token { get; set; }
 
         public DateTime ExpiresAt { get; set; }
-
-        public Role Role { get; set; }
     }
 }

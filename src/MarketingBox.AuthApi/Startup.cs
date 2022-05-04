@@ -47,8 +47,7 @@ namespace MarketingBox.AuthApi
                      .AllowCredentials();
                  });
             });
-
-
+            
             ///Access to XMLHttpRequest at 'https://mb-affiliate-api.mnftx.biz/api/affiliates' from origin 'http://localhost:3001' 
             ///has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' 
             ///header is present on the requested resource.
