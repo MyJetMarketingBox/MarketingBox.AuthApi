@@ -54,13 +54,13 @@ namespace MarketingBox.AuthApi.Domain.Tokens
             string userSalt = null;
             string userName = null;
 
-            var usersResponse = await _userService.GetAsync(new GetUserRequest()
+            var usersResponse = await _userService.SearchAsync(new SearchUserRequest()
             {
                 Username = !isEmail ? login : null,
                 Email = isEmail ? login : null,
                 TenantId = tenantId
             });
-
+            
             if (usersResponse?.Data == null || usersResponse.Data.Count == 0)
                 return (null, new LoginError() { Type = LoginErrorType.NoUser });
 
