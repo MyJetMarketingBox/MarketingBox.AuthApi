@@ -1,9 +1,7 @@
 ﻿using MarketingBox.Auth.Service.Crypto;
 using MarketingBox.Auth.Service.Grpc;
-using MarketingBox.Auth.Service.MyNoSql.Users;
 using MarketingBox.AuthApi.Domain.Models.Errors;
 using Microsoft.IdentityModel.Tokens;
-using MyNoSqlServer.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,22 +21,18 @@ namespace MarketingBox.AuthApi.Domain.Tokens
         private const string TenantIdClaim = "tenant-id";
 
 
-        private readonly IMyNoSqlServerDataReader<UserNoSql> _reader;
         private readonly IUserService _userService;
         private readonly ICryptoService _cryptoService;
         private readonly string _tokenSecret;
         private readonly string _mainAudience;
         private readonly TimeSpan _ttl;
 
-        public TokensService(
-            IMyNoSqlServerDataReader<UserNoSql> reader,
-            IUserService userService,
+        public TokensService(IUserService userService,
             ICryptoService cryptoService,
             string tokenSecret,
             string mainAudience,
             TimeSpan ttl)
         {
-            _reader = reader;
             _userService = userService;
             _cryptoService = cryptoService;
             _tokenSecret = tokenSecret;

@@ -36,7 +36,7 @@ namespace MarketingBox.AuthApi
 
             Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
 
-            using var loggerFactory = LogConfigurator.ConfigureElk("MarketingBox.AuthApi", Settings.SeqServiceUrl, Settings.ElkLogs);
+            using var loggerFactory = LogConfigurator.ConfigureElk_v2("MarketingBox.AuthApi", Settings.SeqServiceUrl, Settings.ElkLogs);
 
             var logger = loggerFactory.CreateLogger<Program>();
 

@@ -6,13 +6,14 @@ using MarketingBox.Auth.Service.Crypto;
 using MarketingBox.Auth.Service.Grpc;
 using MarketingBox.Auth.Service.MyNoSql.Users;
 using MarketingBox.AuthApi.Domain.Tokens;
+using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.NoSql;
 using MyNoSqlServer.Abstractions;
 using MyNoSqlServer.DataReader;
 
 namespace MarketingBox.AuthApi.Modules
 {
-    public class ServiceModule: Module
+    public class ServiceModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -28,22 +29,21 @@ namespace MarketingBox.AuthApi.Modules
             }
 
             var tenantLocator = new TenantLocator(dict);
-            
+
             builder
                 .RegisterInstance(tenantLocator)
                 .As<TenantLocator>();
 
             builder.RegisterAuthServiceClient(Program.Settings.AuthServiceUrl);
-            var noSqlClient = builder.CreateNoSqlClient(Program.ReloadedSettings(e => e.MyNoSqlReaderHostPort));
+            var noSqlClient = builder.CreateNoSqlClient(Program.ReloadedSettings(e => e.MyNoSqlReaderHostPort).Invoke(),
+                new LoggerFactory());
 
             var subs = new MyNoSqlReadRepository<UserNoSql>(noSqlClient, UserNoSql.TableName);
             builder.RegisterInstance(subs)
                 .As<IMyNoSqlServerDataReader<UserNoSql>>();
 
             TimeSpan.TryParse(Program.Settings.JwtTtl, out var ttl);
-            builder.Register(x => new TokensService(
-                    x.Resolve<IMyNoSqlServerDataReader<UserNoSql>>(),
-                    x.Resolve<IUserService>(),
+            builder.Register(x => new TokensService(x.Resolve<IUserService>(),
                     x.Resolve<ICryptoService>(),
                     Program.Settings.JwtSecret,
                     Program.Settings.JwtAudience,
