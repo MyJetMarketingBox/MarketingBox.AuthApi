@@ -36,7 +36,7 @@ namespace MarketingBox.AuthApi
 
             Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
 
-            using var loggerFactory = LogConfigurator.ConfigureElk("MarketingBox.AuthApi", Settings.SeqServiceUrl, Settings.ElkLogs);
+            using var loggerFactory = LogConfigurator.ConfigureElk_v2("MarketingBox.AuthApi", Settings.SeqServiceUrl, Settings.ElkLogs);
 
             var logger = loggerFactory.CreateLogger<Program>();
 
@@ -46,6 +46,9 @@ namespace MarketingBox.AuthApi
             {
                 logger.LogInformation("Application is being started");
 
+                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+                AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2Support", true);
+                
                 CreateHostBuilder(loggerFactory, args).Build().Run();
 
                 logger.LogInformation("Application has been stopped");
@@ -69,7 +72,7 @@ namespace MarketingBox.AuthApi
 
                     webBuilder.ConfigureKestrel(options =>
                     {
-                        options.Listen(IPAddress.Any, int.Parse(httpPort), o => o.Protocols = HttpProtocols.Http1);
+                        options.Listen(IPAddress.Any, int.Parse(httpPort), o => o.Protocols = HttpProtocols.Http1AndHttp2);
                         options.Listen(IPAddress.Any, int.Parse(grpcPort), o => o.Protocols = HttpProtocols.Http2);
                     });
 
