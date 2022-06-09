@@ -50,6 +50,9 @@ namespace MarketingBox.AuthApi.Modules
                     ttl))
                 .As<ITokensService>()
                 .SingleInstance();
+            builder.RegisterType<CryptoService>()
+                .As<ICryptoService>()
+                .SingleInstance();
         }
     }
 }
