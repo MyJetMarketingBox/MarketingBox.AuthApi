@@ -1,5 +1,4 @@
-﻿using MarketingBox.Auth.Service.Crypto;
-using MarketingBox.Auth.Service.Grpc;
+﻿using MarketingBox.Auth.Service.Grpc;
 using MarketingBox.AuthApi.Domain.Models.Errors;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -11,6 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using MarketingBox.Auth.Service.Grpc.Models;
+using MarketingBox.Sdk.Crypto;
 
 namespace MarketingBox.AuthApi.Domain.Tokens
 {

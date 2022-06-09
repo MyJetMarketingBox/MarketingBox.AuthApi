@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Autofac;
 using MarketingBox.Auth.Service.Client;
-using MarketingBox.Auth.Service.Crypto;
 using MarketingBox.Auth.Service.Grpc;
 using MarketingBox.Auth.Service.MyNoSql.Users;
 using MarketingBox.AuthApi.Domain.Tokens;
+using MarketingBox.Sdk.Crypto;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.NoSql;
 using MyNoSqlServer.Abstractions;
