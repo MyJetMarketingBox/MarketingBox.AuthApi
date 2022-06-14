@@ -36,7 +36,7 @@ namespace MarketingBox.AuthApi.Modules
 
             builder.RegisterAuthServiceClient(Program.Settings.AuthServiceUrl);
             var noSqlClient = builder.CreateNoSqlClient(Program.ReloadedSettings(e => e.MyNoSqlReaderHostPort).Invoke(),
-                new LoggerFactory());
+                Program.LogFactory);
 
             var subs = new MyNoSqlReadRepository<UserNoSql>(noSqlClient, UserNoSql.TableName);
             builder.RegisterInstance(subs)
