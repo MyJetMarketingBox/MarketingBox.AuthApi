@@ -42,7 +42,7 @@ namespace MarketingBox.AuthApi
                          "http://localhost:3001",
                          "http://localhost:3002",
                          "http://marketing-box-auth-api.marketing-box.svc.cluster.local:8080",
-                         "https://auth-api-uat-swagger.trfme.biz")
+                         "auth-api-uat.trfme.biz")
                      //.AllowAnyOrigin()
                      //.WithMethods("GET", "POST")
                      .AllowAnyHeader()
