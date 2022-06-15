@@ -1,5 +1,4 @@
-﻿using System;
-using MyJetWallet.Sdk.Service;
+﻿using MyJetWallet.Sdk.Service;
 using MyYamlParser;
 
 namespace MarketingBox.AuthApi.Settings
@@ -23,9 +22,6 @@ namespace MarketingBox.AuthApi.Settings
 
         [YamlProperty("MarketingBoxAuthApi.JwtSecret")]
         public string JwtSecret { get; set; }
-
-        [YamlProperty("MarketingBoxAuthApi.JwtTtl")]
-        public string JwtTtl { get; set; }
 
         [YamlProperty("MarketingBoxAuthApi.MyNoSqlReaderHostPort")]
         public string MyNoSqlReaderHostPort { get; set; }

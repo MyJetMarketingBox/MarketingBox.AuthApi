@@ -3,8 +3,10 @@ using MarketingBox.AuthApi.Models.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using MarketingBox.AuthApi.Domain.Models.Errors;
+using MarketingBox.Auth.Service.Grpc;
+using MarketingBox.Auth.Service.Grpc.Models;
 using MarketingBox.AuthApi.Domain.Tokens;
+using MarketingBox.Sdk.Common.Extensions;
 
 namespace MarketingBox.AuthApi.Controllers
 {
@@ -36,35 +38,16 @@ namespace MarketingBox.AuthApi.Controllers
             var tenantId = _tenantLocator.GetTenantIdByHost(Request.Host.Host);
             
             Console.WriteLine($"Get tenant '{tenantId}' from host '{Request.Host.Host}' ");
-
-            if (string.IsNullOrWhiteSpace(request.Email))
-            {
-                ModelState.AddModelError(nameof(request.Email), "Email cannot be empty.");
-                return BadRequest(ModelState);
-            }
-            if (string.IsNullOrWhiteSpace(request.Password))
-            {
-                ModelState.AddModelError(nameof(request.Password), "Password cannot be empty.");
-                return BadRequest(ModelState);
-            }
             
-            var (token, error) = await _tokensService.LoginAsync(request.Email, tenantId, request.Password);
+            request.ValidateEntity();
 
-            if (error != null)
+            var response= await _tokensService.LoginAsync(new TokenRequest
             {
-                switch (error.Type)
-                {
-                    case LoginErrorType.NoUser:
-                        ModelState.AddModelError(nameof(request.Email), $"There is no such user");
-                        break;
-                    case LoginErrorType.WrongPassword:
-                        ModelState.AddModelError(nameof(request.Password), "Password is wrong");
-                        break;
-                    default:
-                        break;
-                }
-                return BadRequest(ModelState);
-            }
+                Login = request.Email,
+                Password = request.Password,
+                TenantId = tenantId
+            });
+            var token = response.Process();
 
             return Ok(new AuthenticateResponse()
             {
