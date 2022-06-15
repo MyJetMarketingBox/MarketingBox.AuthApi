@@ -3,7 +3,10 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using Autofac;
+using AutoWrapper;
 using MarketingBox.AuthApi.Modules;
+using MarketingBox.Sdk.Common.Extensions;
+using MarketingBox.Sdk.Common.Models.RestApi;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -96,7 +99,16 @@ namespace MarketingBox.AuthApi
             {
                 app.UseDeveloperExceptionPage();
             }
+            
+            app.UseApiResponseAndExceptionWrapper<ApiResponseMap>(
+                new AutoWrapperOptions
+                {
+                    UseCustomSchema = true,
+                    IgnoreWrapForOkRequests = true
+                });
 
+            app.UseExceptions();
+            
             app.UseRouting();
 
             app.UseCors(_allowAllOrigins);
