@@ -103,3 +103,24 @@ jobs:
         git config user.email github-actions@github.com
         git commit -a -m "Update version of service ${{ steps.string.outputs.lowercase }}"
         git push
+        
+  docker_update_version:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: get prod docker yamls
+      uses: actions/checkout@v2
+      with:
+        repository: MyJetMarketingBox/docker-infrastructure
+        ref: prod
+        token: ${{ secrets.UAT_GIT_TOKEN }}
+    - run: |
+        pattern=marketingbox.authapi-master:.*$
+        imagename=marketingbox.authapi-master:${GITHUB_REF#refs/tags/}
+        reg=$"s/${pattern}/${imagename}/g"
+        echo $reg
+        find . -type f -name "docker-compose.*" -print0 -exec sed -i -r $reg {} \;
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git commit -a -m "Update version of service marketingbox.authapi"
+        git push
