@@ -3,7 +3,10 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using Autofac;
+using AutoWrapper;
 using MarketingBox.AuthApi.Modules;
+using MarketingBox.Sdk.Common.Extensions;
+using MarketingBox.Sdk.Common.Models.RestApi;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -38,9 +41,14 @@ namespace MarketingBox.AuthApi
                  builder =>
                  {
                      builder
-                     .WithOrigins("http://localhost:3001", "http://localhost:3002", "http://marketing-box-auth-api.marketing-box.svc.cluster.local:8080")
-                     //.AllowAnyOrigin()
-                     //.WithMethods("GET", "POST")
+                     .WithOrigins(
+                         "http://localhost:3001",
+                         "http://localhost:3002",
+                         "http://marketing-box-auth-api.marketing-box.svc.cluster.local:8080",
+                         "https://auth-api-uat-swagger.trfme.biz",
+                         "https://frontend-uat.trfme.biz",
+                         "https://frontend.trfme.biz")
+                     .WithMethods("GET", "POST")
                      .AllowAnyHeader()
                      .AllowAnyMethod()
                      .SetIsOriginAllowed((host) => true)
@@ -92,7 +100,16 @@ namespace MarketingBox.AuthApi
             {
                 app.UseDeveloperExceptionPage();
             }
+            
+            app.UseApiResponseAndExceptionWrapper<ApiResponseMap>(
+                new AutoWrapperOptions
+                {
+                    UseCustomSchema = true,
+                    IgnoreWrapForOkRequests = true
+                });
 
+            app.UseExceptions();
+            
             app.UseRouting();
 
             app.UseCors(_allowAllOrigins);
